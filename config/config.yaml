@@ -1,0 +1,23 @@
+# 配置文件
+label2dict_path: /datasets/label2dict.yaml  # 标签到字典的映射
+dict2label_path: /datasets/dict2label.yaml  # 字典映射到标签文件
+words_dict_path: /datasets/words_dict.json  # 字典保存路径
+train_path: /datasets/train.json  # 数据集的路径
+valid_path: /datasets/valid.json  # 验证集的路径
+test_path: /datasets/test.txt   # 测试集的路径
+word2index_path: /datasets/word2index.yaml  # word2index文件 目前没用
+save_path: /runs/train    # 模型保存路径
+save_predict_path: /runs/predict  # 预测时保存的路径
+save_val_path: /runs/valid    # 单独运行验证程序时保存的路径
+
+# 超参数设定
+max_length: 500   # 句子的最长长度
+embedding_dim: 256  # 每个单词用几个值表示
+batch_size: 512    # 训练时每个批次的大小
+epoch: 1     # 训练的轮数
+learning_rate: 0.001   # 学习率
+num_workers: 0    # 读取数据的进程数
+
+# 模型相关参数设定
+nc: 31    # 类别数
+hidden_layer: 256   # 隐藏层数量(通道数)
