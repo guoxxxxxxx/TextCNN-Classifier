@@ -10,9 +10,9 @@ from classifier.conf.readConfig import Config
 config = Config().config
 
 
-class Block(nn.Module):
+class CNNBlock(nn.Module):
     def __init__(self, kernel_size, out_channels=config['hidden_layer']):
-        super(Block, self).__init__()
+        super(CNNBlock, self).__init__()
         self.sequential = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=out_channels, kernel_size=(kernel_size, config['lstm_hidden_layer'])),
             nn.ReLU()
@@ -31,19 +31,21 @@ class Block(nn.Module):
         # return concat_x
         return x_maxpool
 
-class Head(nn.Module):
+class HeadBlock(nn.Module):
 
     def __init__(self):
-        super(Head, self).__init__()
+        super(HeadBlock, self).__init__()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def forward(self, x):
-        fc = nn.Linear(x.shape, config['nc'])
-        return fc(x)
+        fc = nn.Linear(x.shape[1], config['nc']).to(device=self.device)
+        x = fc(x)
+        return x
 
-class LSTMModel(nn.Module):
+class LSTMModelBlock(nn.Module):
 
     def __init__(self, input_size, hidden_size, num_layers=1):
-        super(LSTMModel, self).__init__()
+        super(LSTMModelBlock, self).__init__()
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True)
 
@@ -53,17 +55,17 @@ class LSTMModel(nn.Module):
         return x.unsqueeze(1)
 
 
-class TextCNNModel(nn.Module):
+class TextCNNBlock(nn.Module):
 
     def __init__(self):
-        super(TextCNNModel, self).__init__()
+        super(TextCNNBlock, self).__init__()
         # 特征提取层
-        self.b0 = Block(5)
-        self.b1 = Block(7)
-        self.b2 = Block(11)
-        self.b3 = Block(17)
-        self.b4 = Block(25)
-        self.b5 = Block(3)
+        self.b0 = CNNBlock(5)
+        self.b1 = CNNBlock(7)
+        self.b2 = CNNBlock(11)
+        self.b3 = CNNBlock(17)
+        self.b4 = CNNBlock(25)
+        self.b5 = CNNBlock(3)
 
         # 特征融合部分 及 输出头
         self.neck = nn.Sequential(
@@ -86,18 +88,18 @@ class TextCNNModel(nn.Module):
         return output
 
 
-class LSTM_TextCNN(nn.Module):
+class LSTM_TextCNNModel(nn.Module):
     def __init__(self, embedding_matrix):
-        super(LSTM_TextCNN, self).__init__()
+        super(LSTM_TextCNNModel, self).__init__()
         self.embedding_dim = config['embedding_dim']
         self.embedding_matrix = embedding_matrix
 
         # 长短记忆神经网络先处理位置关系
-        self.lstm = LSTMModel(config['embedding_dim'], config['lstm_hidden_layer'])
+        self.lstm = LSTMModelBlock(config['embedding_dim'], config['lstm_hidden_layer'])
         # 通过CNN再提取特征
-        self.textCNN = TextCNNModel()
+        self.textCNN = TextCNNBlock()
         # 通过全连接层输出31个类别的概率
-        self.head = Head()
+        self.head = HeadBlock()
 
 
     def forward(self, x):
