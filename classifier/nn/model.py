@@ -14,7 +14,7 @@ class CNNBlock(nn.Module):
     def __init__(self, kernel_size, out_channels=config['hidden_layer']):
         super(CNNBlock, self).__init__()
         self.sequential = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=out_channels, kernel_size=(kernel_size, config['lstm_hidden_layer'])),
+            nn.Conv2d(in_channels=1, out_channels=out_channels, kernel_size=(kernel_size, config['embedding_dim'])),
             nn.ReLU()
         )
         self.maxpool = nn.MaxPool1d(kernel_size=(config['max_length'] - kernel_size + 1))
@@ -32,17 +32,18 @@ class CNNBlock(nn.Module):
         return x_maxpool
 
 
-class LSTMModelBlock(nn.Module):
+class LSTMBlock(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers=1):
-        super(LSTMModelBlock, self).__init__()
+    def __init__(self, input_size, hidden_size, num_layers=1, bidirectional=True):
+        super(LSTMBlock, self).__init__()
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size,
-                            num_layers=num_layers, batch_first=True)
+                            num_layers=num_layers, batch_first=True, bidirectional=bidirectional)
+
 
     def forward(self, x):
         x = x.squeeze(1)
-        x, _ = self.lstm(x)
-        return x.unsqueeze(1)
+        x, (h_n, c_n) = self.lstm(x)
+        return x, h_n, c_n
 
 
 class TextCNNBlock(nn.Module):
@@ -95,6 +96,29 @@ class TextCNNModel(nn.Module):
         return x
 
 
+class LSTMModel(nn.Module):
+    def __init__(self, embedding_matrix):
+        super(LSTMModel, self).__init__()
+        self.embedding_dim = config['embedding_dim']
+        self.embedding_matrix = embedding_matrix
+
+        self.lstm = LSTMBlock(config['embedding_dim'], config['lstm_hidden_layer'],
+                              config['lstm_num_layers'], bidirectional=config['lstm_bidirectional'])
+
+        self.times = 2 if config['lstm_bidirectional'] else 1
+        self.head = nn.Sequential(
+            nn.Linear(config['lstm_hidden_layer'] * self.times * config['lstm_num_layers'], config['nc'])
+        )
+
+    def forward(self, x):
+        x = self.embedding_matrix(x)
+        _, x, _ = self.lstm(x)
+        x = x.permute(1, 0, 2)  # [num_layers * num_dire, b_s, h_s] => [b_s, n_l * n_d, h_s]
+        encoding = x.reshape(x.shape[0], -1)
+        x = self.head(encoding)
+        return x
+
+
 class LSTM_TextCNNModel(nn.Module):
     def __init__(self, embedding_matrix):
         super(LSTM_TextCNNModel, self).__init__()
@@ -102,7 +126,7 @@ class LSTM_TextCNNModel(nn.Module):
         self.embedding_matrix = embedding_matrix
 
         # 长短记忆神经网络先处理位置关系
-        self.lstm = LSTMModelBlock(config['embedding_dim'], config['lstm_hidden_layer'])
+        self.lstm = LSTMBlock(config['embedding_dim'], config['lstm_hidden_layer'])
         # 通过CNN再提取特征
         self.textCNN = TextCNNBlock()
         # 通过全连接层输出31个类别的概率

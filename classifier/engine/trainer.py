@@ -9,7 +9,7 @@ from tqdm import tqdm
 from classifier.conf.readConfig import Config
 from classifier.data.loaders import getDataLoader
 from classifier.engine.validator import validator, last_validator, predict_test
-from classifier.nn.model import LSTM_TextCNNModel, TextCNNModel
+from classifier.nn.model import LSTM_TextCNNModel, TextCNNModel, LSTMModel
 from classifier.utils.plotting import plot_loss_acc_curve
 from classifier.utils.save import save_model, save_log
 
@@ -34,7 +34,8 @@ def trainer(model_path=None):
     val_dataloader = getDataLoader(batch_size=config['batch_size'], mode='val', shuffle=False)
 
     if model_path is None:
-        net = TextCNNModel(embedding_matrix=embedding_matrix).to(device)
+        # 此处可以替换的模型有: LSTMModel, TextCNNModel
+        net = LSTMModel(embedding_matrix=embedding_matrix).to(device)
     else:
         net = torch.load(model_path).to(device)
     criterion = nn.BCEWithLogitsLoss().to(device)

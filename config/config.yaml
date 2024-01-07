@@ -11,8 +11,8 @@ save_predict_path: /runs/predict  # 预测时保存的路径
 save_val_path: /runs/valid    # 单独运行验证程序时保存的路径
 
 # 超参数设定
-max_length: 500   # 句子的最长长度
-embedding_dim: 256  # 每个单词用几个值表示
+max_length: 300   # 句子的最长长度
+embedding_dim: 300  # 每个单词用几个值表示
 batch_size: 512    # 训练时每个批次的大小
 epoch: 50     # 训练的轮数
 learning_rate: 0.001   # 学习率
@@ -24,3 +24,5 @@ hidden_layer: 256   # 隐藏层数量(通道数)
 
 # LSTM模块参数
 lstm_hidden_layer: 256
+lstm_num_layers: 2
+lstm_bidirectional: True    # 是否启用双向LSTM
