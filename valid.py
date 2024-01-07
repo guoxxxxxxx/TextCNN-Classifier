@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Time : 2023/12/27 16:52
-# @Author : guoxun
-# @File : valid
 # 用于使用指定模型验证验证集
 import logging
 import os

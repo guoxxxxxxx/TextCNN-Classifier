@@ -2,6 +2,135 @@
 
 
 
+## 各种模型对比
+
+### ① TextCNN
+
+- 跑了50轮实验结果如下
+
+  - 损失函数及精度曲线如下(验证集上的精度在85%左右)
+
+    <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
+
+  - 训练日志文件如下：
+
+    ``` txt
+    ... 上述轮数省略, 请见项目文件
+    epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
+    epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
+    epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
+    ✨验证集上的最优准确率为: 0.85326610
+    🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
+    ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
+    ```
+
+  - 超参数设定如下：
+
+    ``` yaml
+    # 超参数设定
+    max_length: 500   # 句子的最长长度
+    embedding_dim: 256  # 每个单词用几个值表示
+    batch_size: 512    # 训练时每个批次的大小
+    epoch: 50     # 训练的轮数
+    learning_rate: 0.001   # 学习率
+    num_workers: 0    # 读取数据的进程数
+    
+    # 模型相关参数设定
+    nc: 31    # 类别数
+    hidden_layer: 256   # 隐藏层数量(通道数)
+    ```
+
+    
+
+### ② LSTM
+
+跑了50轮实验结果如下
+
+- 损失函数及精度曲线如下(验证集上的精度在85%左右)
+
+  <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
+
+- 训练日志文件如下：
+
+  ``` txt
+  ... 上述轮数省略, 请见项目文件
+  epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
+  epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
+  epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
+  ✨验证集上的最优准确率为: 0.85326610
+  🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
+  ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
+  ```
+
+- 超参数设定如下：
+
+  ``` yaml
+  # 超参数设定
+  max_length: 500   # 句子的最长长度
+  embedding_dim: 256  # 每个单词用几个值表示
+  batch_size: 512    # 训练时每个批次的大小
+  epoch: 50     # 训练的轮数
+  learning_rate: 0.001   # 学习率
+  num_workers: 0    # 读取数据的进程数
+  
+  # 模型相关参数设定
+  nc: 31    # 类别数
+  hidden_layer: 256   # 隐藏层数量(通道数)
+  ```
+
+  
+
+### ③ LSTM+TextCNN
+
+
+
+> 先进行LSTM再进行TextCNN
+
+
+
+跑了50轮实验结果如下
+
+- 损失函数及精度曲线如下(验证集上的精度在85%左右)
+
+<img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401071743188.png" alt="image-20240107174331131" style="zoom: 33%;" />
+
+- 训练日志文件如下：
+
+  ``` txt
+  epoch: 47 : loss: 0.00045492 	 accuracy: 0.84806283
+  epoch: 48 : loss: 0.00092862 	 accuracy: 0.84253658
+  epoch: 49 : loss: 0.00103872 	 accuracy: 0.85164610
+  epoch: 50 : loss: 0.00079300 	 accuracy: 0.85034401
+  ✨验证集上的最优准确率为: 0.85164610
+  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5\weights\best.pt
+  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5/test_predict(submission).txt
+  ```
+
+- 超参数设定如下：
+
+  ``` yaml
+  # 超参数设定
+  max_length: 500   # 句子的最长长度
+  embedding_dim: 256  # 每个单词用几个值表示
+  batch_size: 512    # 训练时每个批次的大小
+  epoch: 50     # 训练的轮数
+  learning_rate: 0.001   # 学习率
+  num_workers: 0    # 读取数据的进程数
+  
+  # 模型相关参数设定
+  nc: 31    # 类别数
+  hidden_layer: 256   # 隐藏层数量(通道数)
+  
+  # LSTM模块参数
+  lstm_hidden_layer: 256
+  ```
+
+  
+
+
+
+
+
 ## 0. 前言
 
 
@@ -24,11 +153,11 @@
 
 
 
-- 网络结构与这个大体相同，在max-pooling的基础上，做了个分支，添加了ave-pooling。
+- 网络结构与这个大体相同，在max-pooling的基础上，~~做了个分支，添加了ave-pooling。~~(效果有提升，但是不明显，计算开销明显增大，故删除此部分)
 
 
 
-<img src="https://github.com/shouxieai/A-series-of-NLP/blob/main/文本分类/TextCNN_文本分类/Snipaste_2022-06-29_13-33-07.JPG?raw=true" alt="Snipaste_2022-06-29_13-33-07.JPG" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401071745515.png" alt="image-20240107174538423" style="zoom: 33%;" />
 
 ### 1.1 数据集读取部分
 
@@ -189,11 +318,7 @@ pip install -r requirement.txt		# 安装相关依赖
 
 ## 3. 程序运行情况
 
-- 程序精度不是很高，当前在验证集上的精度大概在85%左右，提升空间应该还很大。(优化就交给你自己了！)
-
-
-
-- 我跑了一次结果存储在$/runs/train/run\_0$文件夹下
+> 这里以TextCNN为例，其他都一样
 
 
 

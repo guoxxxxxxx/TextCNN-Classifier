@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Time : 2023/12/27 16:30
-# @Author : guoxun
-# @File : predict
 # 使用已经训练好的模型对测试集进行预测时，可以单独执行该文件
 
 import logging

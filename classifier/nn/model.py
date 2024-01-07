@@ -31,6 +31,15 @@ class Block(nn.Module):
         # return concat_x
         return x_maxpool
 
+class Head(nn.Module):
+
+    def __init__(self):
+        super(Head, self).__init__()
+
+    def forward(self, x):
+        fc = nn.Linear(x.shape, config['nc'])
+        return fc(x)
+
 class LSTMModel(nn.Module):
 
     def __init__(self, input_size, hidden_size, num_layers=1):
@@ -56,11 +65,10 @@ class TextCNNModel(nn.Module):
         self.b4 = Block(25)
         self.b5 = Block(3)
 
-        # 特征融合部分
+        # 特征融合部分 及 输出头
         self.neck = nn.Sequential(
-            nn.Linear(6 * config['hidden_layer'], 512),
             nn.ReLU(),
-            nn.Linear(512, config['nc'])
+            nn.Linear(6 * config['hidden_layer'], 512),
         )
 
     def forward(self, x, label=None):
@@ -88,10 +96,13 @@ class LSTM_TextCNN(nn.Module):
         self.lstm = LSTMModel(config['embedding_dim'], config['lstm_hidden_layer'])
         # 通过CNN再提取特征
         self.textCNN = TextCNNModel()
+        # 通过全连接层输出31个类别的概率
+        self.head = Head()
 
 
     def forward(self, x):
         x = self.embedding_matrix(x)
         lstm_out = self.lstm(x)
         cnn_out = self.textCNN(lstm_out)
-        return cnn_out
+        output = self.head(cnn_out)
+        return output
