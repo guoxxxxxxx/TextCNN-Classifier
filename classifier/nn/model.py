@@ -31,16 +31,6 @@ class CNNBlock(nn.Module):
         # return concat_x
         return x_maxpool
 
-class HeadBlock(nn.Module):
-
-    def __init__(self):
-        super(HeadBlock, self).__init__()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    def forward(self, x):
-        fc = nn.Linear(x.shape[1], config['nc']).to(device=self.device)
-        x = fc(x)
-        return x
 
 class LSTMModelBlock(nn.Module):
 
@@ -70,7 +60,7 @@ class TextCNNBlock(nn.Module):
         # 特征融合部分 及 输出头
         self.neck = nn.Sequential(
             nn.ReLU(),
-            nn.Linear(6 * config['hidden_layer'], 512),
+            nn.Linear(6 * config['hidden_layer'], 512)
         )
 
     def forward(self, x, label=None):
@@ -88,6 +78,23 @@ class TextCNNBlock(nn.Module):
         return output
 
 
+class TextCNNModel(nn.Module):
+    def __init__(self, embedding_matrix):
+        super(TextCNNModel, self).__init__()
+        self.embedding_dim = config['embedding_dim']
+        self.embedding_matrix = embedding_matrix
+        self.textCNN = TextCNNBlock()
+        self.head = nn.Sequential(
+            nn.Linear(512, config['nc'])
+        )
+
+    def forward(self, x):
+        x = self.embedding_matrix(x)
+        x = self.textCNN(x)
+        x = self.head(x)
+        return x
+
+
 class LSTM_TextCNNModel(nn.Module):
     def __init__(self, embedding_matrix):
         super(LSTM_TextCNNModel, self).__init__()
@@ -99,7 +106,7 @@ class LSTM_TextCNNModel(nn.Module):
         # 通过CNN再提取特征
         self.textCNN = TextCNNBlock()
         # 通过全连接层输出31个类别的概率
-        self.head = HeadBlock()
+        self.head = nn.Linear(512, config['nc'])
 
 
     def forward(self, x):
