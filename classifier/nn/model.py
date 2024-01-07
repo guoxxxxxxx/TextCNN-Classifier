@@ -50,33 +50,16 @@ class TextCNNBlock(nn.Module):
 
     def __init__(self):
         super(TextCNNBlock, self).__init__()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # 特征提取层
-        self.b0 = CNNBlock(5)
-        self.b1 = CNNBlock(7)
-        self.b2 = CNNBlock(11)
-        self.b3 = CNNBlock(17)
-        self.b4 = CNNBlock(25)
-        self.b5 = CNNBlock(3)
-
-        # 特征融合部分 及 输出头
-        self.neck = nn.Sequential(
-            nn.ReLU(),
-            nn.Linear(6 * config['hidden_layer'], 512)
-        )
+        self.block_list = [CNNBlock(ks).to(device=device) for ks in config['conv_kernel_list']]
 
     def forward(self, x, label=None):
 
-        b0_results = self.b0(x)
-        b1_results = self.b1(x)
-        b2_results = self.b2(x)
-        b3_results = self.b3(x)
-        b4_results = self.b4(x)
-        b5_results = self.b5(x)
+        result = [block(x) for block in self.block_list]
+        features = torch.cat(result, dim=1)
 
-        features = torch.cat([b0_results, b1_results, b2_results, b3_results, b4_results,
-                              b5_results], dim=1)
-        output = self.neck(features)
-        return output
+        return features
 
 
 class TextCNNModel(nn.Module):
@@ -86,6 +69,8 @@ class TextCNNModel(nn.Module):
         self.embedding_matrix = embedding_matrix
         self.textCNN = TextCNNBlock()
         self.head = nn.Sequential(
+            nn.ReLU(),
+            nn.Linear(len(config['conv_kernel_list']) * config['hidden_layer'], 512),
             nn.Linear(512, config['nc'])
         )
 
@@ -125,17 +110,9 @@ class LSTM_TextCNNModel(nn.Module):
         self.embedding_dim = config['embedding_dim']
         self.embedding_matrix = embedding_matrix
 
-        # 长短记忆神经网络先处理位置关系
-        self.lstm = LSTMBlock(config['embedding_dim'], config['lstm_hidden_layer'])
-        # 通过CNN再提取特征
-        self.textCNN = TextCNNBlock()
-        # 通过全连接层输出31个类别的概率
-        self.head = nn.Linear(512, config['nc'])
+        self.textcnn = TextCNNBlock()
 
 
     def forward(self, x):
         x = self.embedding_matrix(x)
-        lstm_out = self.lstm(x)
-        cnn_out = self.textCNN(lstm_out)
-        output = self.head(cnn_out)
-        return output
+        x = self.textcnn(x)

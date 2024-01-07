@@ -2,133 +2,6 @@
 
 
 
-## 各种模型对比
-
-### ① TextCNN
-
-- 跑了50轮实验结果如下
-
-  - 损失函数及精度曲线如下(验证集上的精度在85%左右)
-
-    <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
-
-  - 训练日志文件如下：
-
-    ``` txt
-    ... 上述轮数省略, 请见项目文件
-    epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
-    epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
-    epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
-    ✨验证集上的最优准确率为: 0.85326610
-    🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
-    ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
-    ```
-
-  - 超参数设定如下：
-
-    ``` yaml
-    # 超参数设定
-    max_length: 500   # 句子的最长长度
-    embedding_dim: 256  # 每个单词用几个值表示
-    batch_size: 512    # 训练时每个批次的大小
-    epoch: 50     # 训练的轮数
-    learning_rate: 0.001   # 学习率
-    num_workers: 0    # 读取数据的进程数
-    
-    # 模型相关参数设定
-    nc: 31    # 类别数
-    hidden_layer: 256   # 隐藏层数量(通道数)
-    ```
-
-    
-
-### ② LSTM
-
-跑了50轮实验结果如下
-
-- 损失函数及精度曲线如下(验证集上的精度在85%左右)
-
-  <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
-
-- 训练日志文件如下：
-
-  ``` txt
-  ... 上述轮数省略, 请见项目文件
-  epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
-  epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
-  epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
-  ✨验证集上的最优准确率为: 0.85326610
-  🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
-  ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
-  ```
-
-- 超参数设定如下：
-
-  ``` yaml
-  # 超参数设定
-  max_length: 500   # 句子的最长长度
-  embedding_dim: 256  # 每个单词用几个值表示
-  batch_size: 512    # 训练时每个批次的大小
-  epoch: 50     # 训练的轮数
-  learning_rate: 0.001   # 学习率
-  num_workers: 0    # 读取数据的进程数
-  
-  # 模型相关参数设定
-  nc: 31    # 类别数
-  hidden_layer: 256   # 隐藏层数量(通道数)
-  ```
-
-  
-
-### ③ LSTM+TextCNN
-
-
-
-> 先进行LSTM再进行TextCNN
-
-
-
-跑了50轮实验结果如下
-
-- 损失函数及精度曲线如下(验证集上的精度在85%左右)
-
-<img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401071743188.png" alt="image-20240107174331131" style="zoom: 33%;" />
-
-- 训练日志文件如下：
-
-  ``` txt
-  epoch: 47 : loss: 0.00045492 	 accuracy: 0.84806283
-  epoch: 48 : loss: 0.00092862 	 accuracy: 0.84253658
-  epoch: 49 : loss: 0.00103872 	 accuracy: 0.85164610
-  epoch: 50 : loss: 0.00079300 	 accuracy: 0.85034401
-  ✨验证集上的最优准确率为: 0.85164610
-  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5\weights\best.pt
-  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5/test_predict(submission).txt
-  ```
-
-- 超参数设定如下：
-
-  ``` yaml
-  # 超参数设定
-  max_length: 500   # 句子的最长长度
-  embedding_dim: 256  # 每个单词用几个值表示
-  batch_size: 512    # 训练时每个批次的大小
-  epoch: 50     # 训练的轮数
-  learning_rate: 0.001   # 学习率
-  num_workers: 0    # 读取数据的进程数
-  
-  # 模型相关参数设定
-  nc: 31    # 类别数
-  hidden_layer: 256   # 隐藏层数量(通道数)
-  
-  # LSTM模块参数
-  lstm_hidden_layer: 256
-  ```
-
-  
-
-
-
 
 
 ## 0. 前言
@@ -278,7 +151,7 @@
 
 
 
-## 2. 程序运行详情
+## 2. 程序运行详解
 
 
 
@@ -353,6 +226,149 @@ pip install -r requirement.txt		# 安装相关依赖
       红色框选部分：两边对不上，说明预测错误。
 
       蓝色部分：之所以预测值为空，是因为这是一个多标签分类，程序认为编号为47的语句不属于任何一类，所以类别为空值。
+
+
+
+## 各种模型对比
+
+### ① TextCNN
+
+- 跑了50轮实验结果如下
+
+  - 损失函数及精度曲线如下(验证集上的精度在85%左右)
+
+    <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
+
+  - 训练日志文件如下：
+
+    ``` txt
+    ... 上述轮数省略, 请见项目文件
+    epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
+    epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
+    epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
+    ✨验证集上的最优准确率为: 0.85326610
+    🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
+    ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
+    ```
+
+  - 超参数设定如下：
+
+    ``` yaml
+    # 超参数设定
+    max_length: 500   # 句子的最长长度
+    embedding_dim: 256  # 每个单词用几个值表示
+    batch_size: 512    # 训练时每个批次的大小
+    epoch: 50     # 训练的轮数
+    learning_rate: 0.001   # 学习率
+    num_workers: 0    # 读取数据的进程数
+    
+    # 模型相关参数设定
+    nc: 31    # 类别数
+    hidden_layer: 256   # 隐藏层数量(通道数)
+    ```
+
+    
+
+### ② LSTM
+
+跑了50轮实验结果如下
+
+- 损失函数及精度曲线如下(验证集上的精度在83%左右)
+
+  ![image-20240107221426533](https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401072214610.png)
+
+- 训练日志文件如下：
+
+  ``` txt
+  epoch: 48 : loss: 0.00100174 	 accuracy: 0.83473675
+  epoch: 49 : loss: 0.00213933 	 accuracy: 0.83570824
+  epoch: 50 : loss: 0.00124396 	 accuracy: 0.83245303
+  ✨验证集上的最优准确率为: 0.83570824
+  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_30\weights\best.pt
+  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_30/test_predict(submission).txt
+  ```
+
+- 超参数设定如下：
+
+  ``` yaml
+  # 超参数设定
+  max_length: 150   # 句子的最长长度
+  embedding_dim: 300  # 每个单词用几个值表示
+  batch_size: 512    # 训练时每个批次的大小
+  epoch: 50     # 训练的轮数
+  learning_rate: 0.001   # 学习率
+  num_workers: 0    # 读取数据的进程数
+  
+  # 模型相关参数设定
+  nc: 31    # 类别数
+  
+  # TextCNN模型参数
+  hidden_layer: 256   # 隐藏层数量(通道数)
+  
+  # LSTM模块参数
+  lstm_hidden_layer: 256
+  lstm_num_layers: 2
+  lstm_bidirectional: True    # 是否启用双向LSTM
+  ```
+
+- 不同超参数下LSTM模型性能情况
+
+  | 编号 | 训练轮数 | 句子最大长度 | 词向量长度 | hidden_layer | num_layers | bidirectional | 验证集精度 |
+  | ---- | -------- | ------------ | ---------- | ------------ | ---------- | ------------- | ---------- |
+  | 01   | 50       | 300          | 300        | 256          | 2          | True          | 83.05      |
+  | 02   | 50       | 150          | 300        | 256          | 2          | True          | 83.57      |
+  | 03   | 50       | 150          | 300        | 256          | 4          | True          | 83.01      |
+  | 04   | 50       | 150          | 300        | 256          | 1          | True          | 83.44      |
+  | 05   | 50       | 150          | 300        | 256          | 2          | False         | 80.35      |
+
+  
+
+### ③ LSTM+TextCNN
+
+
+
+> 先进行LSTM再进行TextCNN
+
+
+
+跑了50轮实验结果如下
+
+- 损失函数及精度曲线如下(验证集上的精度在85%左右)
+
+<img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401071743188.png" alt="image-20240107174331131" style="zoom: 33%;" />
+
+- 训练日志文件如下：
+
+  ``` txt
+  epoch: 47 : loss: 0.00045492 	 accuracy: 0.84806283
+  epoch: 48 : loss: 0.00092862 	 accuracy: 0.84253658
+  epoch: 49 : loss: 0.00103872 	 accuracy: 0.85164610
+  epoch: 50 : loss: 0.00079300 	 accuracy: 0.85034401
+  ✨验证集上的最优准确率为: 0.85164610
+  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5\weights\best.pt
+  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5/test_predict(submission).txt
+  ```
+
+- 超参数设定如下：
+
+  ``` yaml
+  # 超参数设定
+  max_length: 500   # 句子的最长长度
+  embedding_dim: 256  # 每个单词用几个值表示
+  batch_size: 512    # 训练时每个批次的大小
+  epoch: 50     # 训练的轮数
+  learning_rate: 0.001   # 学习率
+  num_workers: 0    # 读取数据的进程数
+  
+  # 模型相关参数设定
+  nc: 31    # 类别数
+  hidden_layer: 256   # 隐藏层数量(通道数)
+  
+  # LSTM模块参数
+  lstm_hidden_layer: 256
+  ```
+
+  
 
 
 

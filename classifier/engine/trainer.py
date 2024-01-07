@@ -34,8 +34,8 @@ def trainer(model_path=None):
     val_dataloader = getDataLoader(batch_size=config['batch_size'], mode='val', shuffle=False)
 
     if model_path is None:
-        # 此处可以替换的模型有: LSTMModel, TextCNNModel
-        net = LSTMModel(embedding_matrix=embedding_matrix).to(device)
+        # 此处可以替换的模型有: LSTMModel, TextCNNModel, LSTM_TextCNNModel
+        net = TextCNNModel(embedding_matrix=embedding_matrix).to(device)
     else:
         net = torch.load(model_path).to(device)
     criterion = nn.BCEWithLogitsLoss().to(device)
