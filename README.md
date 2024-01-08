@@ -271,21 +271,22 @@ pip install -r requirement.txt		# 安装相关依赖
 
 ### ② LSTM
 
-跑了50轮实验结果如下
+跑了100轮实验结果如下
 
-- 损失函数及精度曲线如下(验证集上的精度在83%左右)
+- 损失函数及精度曲线如下(验证集上的精度在85%左右)
 
-  ![image-20240107221426533](https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401072214610.png)
+  <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401080939889.png" alt="image-20240108093900814" style="zoom:33%;" />
 
 - 训练日志文件如下：
 
   ``` txt
-  epoch: 48 : loss: 0.00100174 	 accuracy: 0.83473675
-  epoch: 49 : loss: 0.00213933 	 accuracy: 0.83570824
-  epoch: 50 : loss: 0.00124396 	 accuracy: 0.83245303
-  ✨验证集上的最优准确率为: 0.83570824
-  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_30\weights\best.pt
-  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_30/test_predict(submission).txt
+  epoch: 97 : loss: 0.00153342 	 accuracy: 0.84416925
+  epoch: 98 : loss: 0.00063166 	 accuracy: 0.84969551
+  epoch: 99 : loss: 0.00065774 	 accuracy: 0.84416672
+  epoch: 100 : loss: 0.00027758 	 accuracy: 0.84741939
+  ✨验证集上的最优准确率为: 0.85033641
+  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_44\weights\best.pt
+  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_44/test_predict(submission).txt
   ```
 
 - 超参数设定如下：
@@ -293,9 +294,9 @@ pip install -r requirement.txt		# 安装相关依赖
   ``` yaml
   # 超参数设定
   max_length: 150   # 句子的最长长度
-  embedding_dim: 300  # 每个单词用几个值表示
+  embedding_dim: 512  # 每个单词用几个值表示
   batch_size: 512    # 训练时每个批次的大小
-  epoch: 50     # 训练的轮数
+  epoch: 100     # 训练的轮数
   learning_rate: 0.001   # 学习率
   num_workers: 0    # 读取数据的进程数
   
@@ -303,11 +304,12 @@ pip install -r requirement.txt		# 安装相关依赖
   nc: 31    # 类别数
   
   # TextCNN模型参数
-  hidden_layer: 256   # 隐藏层数量(通道数)
+  hidden_layer: 256   # 隐藏层数量(通道数) 
+  conv_kernel_list: [3, 5, 7, 11, 17, 25]
   
   # LSTM模块参数
-  lstm_hidden_layer: 256
-  lstm_num_layers: 2
+  lstm_hidden_size: 512
+  lstm_num_layers: 1
   lstm_bidirectional: True    # 是否启用双向LSTM
   ```
 
@@ -320,8 +322,7 @@ pip install -r requirement.txt		# 安装相关依赖
   | 03   | 50       | 150          | 300        | 256          | 4          | True          | 83.01      |
   | 04   | 50       | 150          | 300        | 256          | 1          | True          | 83.44      |
   | 05   | 50       | 150          | 300        | 256          | 2          | False         | 80.35      |
-
-  
+  | 06   | 50       | 200          | 256        | 256          | 1          | True          | 82.72      |
 
 ### ③ LSTM+TextCNN
 

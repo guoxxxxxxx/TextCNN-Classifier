@@ -34,14 +34,16 @@ class CNNBlock(nn.Module):
 
 class LSTMBlock(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers=1, bidirectional=True):
+    def __init__(self, input_size, hidden_size, num_layers=1, bidirectional=True, is_both=False):
         super(LSTMBlock, self).__init__()
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True, bidirectional=bidirectional)
+        self.is_both = is_both  # 用于判断是不是两个网络融合的网络
 
 
     def forward(self, x):
-        x = x.squeeze(1)
+        if not self.is_both:
+            x = x.squeeze(1)
         x, (h_n, c_n) = self.lstm(x)
         return x, h_n, c_n
 
@@ -87,12 +89,12 @@ class LSTMModel(nn.Module):
         self.embedding_dim = config['embedding_dim']
         self.embedding_matrix = embedding_matrix
 
-        self.lstm = LSTMBlock(config['embedding_dim'], config['lstm_hidden_layer'],
+        self.lstm = LSTMBlock(config['embedding_dim'], config['lstm_hidden_size'],
                               config['lstm_num_layers'], bidirectional=config['lstm_bidirectional'])
 
         self.times = 2 if config['lstm_bidirectional'] else 1
         self.head = nn.Sequential(
-            nn.Linear(config['lstm_hidden_layer'] * self.times * config['lstm_num_layers'], config['nc'])
+            nn.Linear(config['lstm_hidden_size'] * self.times * config['lstm_num_layers'], config['nc'])
         )
 
     def forward(self, x):
@@ -110,9 +112,49 @@ class LSTM_TextCNNModel(nn.Module):
         self.embedding_dim = config['embedding_dim']
         self.embedding_matrix = embedding_matrix
 
-        self.textcnn = TextCNNBlock()
+        self.text_cnn = TextCNNBlock()
+        self.lstm = LSTMBlock(len(config['conv_kernel_list']) * config['hidden_layer'], config['lstm_hidden_size'], is_both=True)
+        self.head = nn.Sequential(
+            # nn.Linear(config['lstm_hidden_size'] * 2 if config['lstm_bidirectional'] else 1, 512),
+            nn.Linear(1536, 512),
+            nn.ReLU(),
+            nn.Linear(512, 128),
+            nn.Linear(128, config['nc'])
+        )
 
 
     def forward(self, x):
         x = self.embedding_matrix(x)
-        x = self.textcnn(x)
+        x = self.text_cnn(x)
+        x = x.unsqueeze(1)
+        output, h_n, c_n = self.lstm(x)
+        h_n, c_n = h_n.permute(1, 0, 2), c_n.permute(1, 0, 2)
+        h_n = h_n.reshape(h_n.shape[0], -1)
+        c_n = c_n.reshape(c_n.shape[0], -1)
+        output = output.squeeze(1)
+        cat = torch.cat((h_n, c_n, output), dim=1)
+        output = self.head(cat)
+        return output
+
+
+class TransformerModel(nn.Module):
+    def __init__(self, embedding_matrix):
+        super(TransformerModel, self).__init__()
+        self.embedding_dim = config['embedding_dim']
+        self.embedding_matrix = embedding_matrix
+
+        self.transformer = nn.Transformer(d_model=config['embedding_dim'], batch_first=True)
+        self.pooling = nn.AdaptiveAvgPool1d(1)
+        self.head = nn.Sequential(
+            nn.Linear(config['max_length'], config['nc'])
+        )
+
+    def forward(self, x):
+        x = self.embedding_matrix(x)
+        x = x.squeeze(1)
+        x = self.transformer(x, x)
+        x = self.pooling(x)
+        x = x.squeeze(-1)
+        x = self.head(x)
+
+        return x
