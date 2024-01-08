@@ -11,22 +11,18 @@ save_predict_path: /runs/predict  # 预测时保存的路径
 save_val_path: /runs/valid    # 单独运行验证程序时保存的路径
 
 # 超参数设定
-max_length: 150   # 句子的最长长度
-embedding_dim: 256  # 每个单词用几个值表示
-batch_size: 64    # 训练时每个批次的大小
-epoch: 100     # 训练的轮数
+max_length: 300   # 句子的最长长度
+embedding_dim: 300  # 每个单词用几个值表示
+batch_size: 512    # 训练时每个批次的大小
+epoch: 50     # 训练的轮数
 learning_rate: 0.001   # 学习率
 num_workers: 0    # 读取数据的进程数
 
 # 模型相关参数设定
 nc: 31    # 类别数
-
-# TextCNN模型参数
-hidden_layer: 256   # 隐藏层数量(通道数) 注：此部分也是LSTM&TextCNN两个模型融合部分的参数
-conv_kernel_list: [3, 5, 7, 11, 17, 25]
+hidden_layer: 256   # 隐藏层数量(通道数)
 
 # LSTM模块参数
-lstm_hidden_size: 512
-lstm_num_layers: 1
+lstm_hidden_layer: 256
+lstm_num_layers: 2
 lstm_bidirectional: True    # 是否启用双向LSTM
-

@@ -9,13 +9,13 @@ from tqdm import tqdm
 from classifier.conf.readConfig import Config
 from classifier.data.loaders import getDataLoader
 from classifier.engine.validator import validator, last_validator, predict_test
-from classifier.nn.model import LSTM_TextCNNModel, TextCNNModel, LSTMModel, TransformerModel
+from classifier.nn.model import TextCNNModel, LSTMModel
 from classifier.utils.plotting import plot_loss_acc_curve
 from classifier.utils.save import save_model, save_log
 
 save_path = Config().save_path
 
-def trainer(model_path=None):
+def trainer(model_path=None, model='TextCNNModel'):
     global loss, thread_save_best, net
     best_accuracy = 0
     if not os.path.exists(save_path):
@@ -34,8 +34,11 @@ def trainer(model_path=None):
     val_dataloader = getDataLoader(batch_size=config['batch_size'], mode='val', shuffle=False)
 
     if model_path is None:
-        # 此处可以替换的模型有: LSTMModel, TextCNNModel, LSTM_TextCNNModel, TransformerModel
-        net = TransformerModel(embedding_matrix=embedding_matrix).to(device)
+        # 此处可以替换的模型有: LSTMModel, TextCNNModel
+        if model == 'TextCNNModel':
+            net = TextCNNModel(embedding_matrix=embedding_matrix).to(device)
+        elif model == 'LSTMModel':
+            net = LSTMModel(embedding_matrix=embedding_matrix).to(device)
     else:
         net = torch.load(model_path).to(device)
     criterion = nn.BCEWithLogitsLoss().to(device)
