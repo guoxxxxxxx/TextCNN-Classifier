@@ -22,7 +22,7 @@
 
 ## 1. 详细实现步骤
 
-> 说明：baseline就不阐述了，可以看前言的资料。 这部分主要说针对这个作业需要对上述模型进行修改的部分。
+> 说明：baseline就不阐述了，可以看前言的资料。 这部分主要说针对这个作业需要对上述模型进行修改的部分。(前言部分为分类问题，所以需要对输出头进行修改，修改为多标签分类的输出头，最后把全连接层输出个数改为31个，把损失函数改为BCELogistics即可)。
 
 
 
@@ -209,8 +209,8 @@ pip install -r requirement.txt		# 安装相关依赖
     epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
     epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
     ✨验证集上的最优准确率为: 0.85326610
-    🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
-    ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
+    🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_1\weights\best.pt
+    ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_1/test_predict(submission).txt
     ```
 
 
@@ -237,22 +237,23 @@ pip install -r requirement.txt		# 安装相关依赖
 
   - 损失函数及精度曲线如下(验证集上的精度在85%左右)
 
-    <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202312281754131.png" alt="image-20231228172405338" style="zoom: 33%;" />
+    <img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401081621198.png" alt="image-20240108162124134" style="zoom:33%;" />
 
   - 训练日志文件如下：
 
     ``` txt
     ... 上述轮数省略, 请见项目文件
-    epoch: 48 : loss: 0.00112865 	 accuracy: 0.85228954
-    epoch: 49 : loss: 0.00047265 	 accuracy: 0.83601856
-    epoch: 50 : loss: 0.00248988 	 accuracy: 0.85001596
-    ✨验证集上的最优准确率为: 0.85326610
+    epoch: 47 : loss: 0.00148951 	 accuracy: 0.85034148
+    epoch: 48 : loss: 0.00082848 	 accuracy: 0.84903940
+    epoch: 49 : loss: 0.00134372 	 accuracy: 0.84676582
+    epoch: 50 : loss: 0.00067405 	 accuracy: 0.84676075
+    ✨验证集上的最优准确率为: 0.85587280
     🎈最优模型权重已保存至: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0\weights\best.pt
     ✌️测试集的预测结果已存储在: F:\Programs\Python\AI\PyCharm\NLP/runs/train/run_0/test_predict(submission).txt
     ```
-
+  
   - 超参数设定如下：
-
+  
     ``` yaml
     # 超参数设定
     max_length: 500   # 句子的最长长度
@@ -266,8 +267,9 @@ pip install -r requirement.txt		# 安装相关依赖
     nc: 31    # 类别数
     hidden_layer: 256   # 隐藏层数量(通道数)
     ```
+  
 
-    
+
 
 ### ② LSTM
 
@@ -324,52 +326,7 @@ pip install -r requirement.txt		# 安装相关依赖
   | 05   | 50       | 150          | 300        | 256          | 2          | False         | 80.35      |
   | 06   | 50       | 200          | 256        | 256          | 1          | True          | 82.72      |
 
-### ③ LSTM+TextCNN
 
-
-
-> 先进行LSTM再进行TextCNN
-
-
-
-跑了50轮实验结果如下
-
-- 损失函数及精度曲线如下(验证集上的精度在85%左右)
-
-<img src="https://cdn.jsdelivr.net/gh/guoxxxxxxx/Pic-Go@main/img/202401071743188.png" alt="image-20240107174331131" style="zoom: 33%;" />
-
-- 训练日志文件如下：
-
-  ``` txt
-  epoch: 47 : loss: 0.00045492 	 accuracy: 0.84806283
-  epoch: 48 : loss: 0.00092862 	 accuracy: 0.84253658
-  epoch: 49 : loss: 0.00103872 	 accuracy: 0.85164610
-  epoch: 50 : loss: 0.00079300 	 accuracy: 0.85034401
-  ✨验证集上的最优准确率为: 0.85164610
-  🎈最优模型权重已保存至: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5\weights\best.pt
-  ✌️测试集的预测结果已存储在: F:\Programs\Remote_Project\TextCNN\TextCNN-Classifier/runs/train/run_5/test_predict(submission).txt
-  ```
-
-- 超参数设定如下：
-
-  ``` yaml
-  # 超参数设定
-  max_length: 500   # 句子的最长长度
-  embedding_dim: 256  # 每个单词用几个值表示
-  batch_size: 512    # 训练时每个批次的大小
-  epoch: 50     # 训练的轮数
-  learning_rate: 0.001   # 学习率
-  num_workers: 0    # 读取数据的进程数
-  
-  # 模型相关参数设定
-  nc: 31    # 类别数
-  hidden_layer: 256   # 隐藏层数量(通道数)
-  
-  # LSTM模块参数
-  lstm_hidden_layer: 256
-  ```
-
-  
 
 
 
@@ -409,14 +366,3 @@ $NLP$ 项目根目录
   - $predict$ 单独执行$predict.py$时的保存路径
   - $train$ 执行$train.py$文件时保存的路径
   - $valid$ 执行$valid.py$时保存的路径
-
-
-
-**重要的事情说三遍！！！**
-
-**说明：最后提交作业时，提交$test\_predict(submission).txt$文件，这个是测试集的预测文件！**
-
-**说明：最后提交作业时，提交$test\_predict(submission).txt$文件，这个是测试集的预测文件！**
-
-**说明：最后提交作业时，提交$test\_predict(submission).txt$文件，这个是测试集的预测文件！**
-
