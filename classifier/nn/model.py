@@ -3,8 +3,11 @@
 如果想要修改网络结构的话在这个文件夹修改即可
 """
 import torch
+from rich.markdown import Link
 from torch import nn
+from torch.nn import Linear
 
+from classifier.block.encoder import Encoder
 from classifier.conf.readConfig import Config
 
 config = Config().config
@@ -116,4 +119,26 @@ class LSTMModel(nn.Module):
         x = x.permute(1, 0, 2)  # [num_layers * num_dire, b_s, h_s] => [b_s, n_l * n_d, h_s]
         encoding = x.reshape(x.shape[0], -1)
         x = self.head(encoding)
+        return x
+
+
+class TransformerModel(nn.Module):
+    def __init__(self, embedding_matrix):
+        super().__init__()
+        self.embedding_dim = config['embedding_dim']
+        self.embedding_matrix = embedding_matrix
+        self.encoderBlock = Encoder(6, self.embedding_dim, config['n_head'], max_seq_len=1024)
+        self.head = nn.Sequential(
+            nn.Linear(self.embedding_dim, self.embedding_dim),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(self.embedding_dim, config['nc'], bias=False),
+        )
+
+    def forward(self, x):
+        bs = x.shape[0]
+        x = self.embedding_matrix(x)
+        x = self.encoderBlock(x)
+        x = x.mean(dim=2).view(bs, -1)
+        x = self.head(x)
         return x

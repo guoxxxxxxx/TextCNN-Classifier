@@ -4,12 +4,13 @@ import threading
 
 import torch
 from torch import nn
+from torch.serialization import safe_globals
 from tqdm import tqdm
 
 from classifier.conf.readConfig import Config
 from classifier.data.loaders import getDataLoader
 from classifier.engine.validator import validator, last_validator, predict_test
-from classifier.nn.model import TextCNNModel, LSTMModel
+from classifier.nn.model import TextCNNModel, LSTMModel, TransformerModel
 from classifier.utils.plotting import plot_loss_acc_curve
 from classifier.utils.save import save_model, save_log
 
@@ -39,6 +40,8 @@ def trainer(model_path=None, model='TextCNNModel'):
             net = TextCNNModel(embedding_matrix=embedding_matrix).to(device)
         elif model == 'LSTMModel':
             net = LSTMModel(embedding_matrix=embedding_matrix).to(device)
+        elif model == 'TransformerModel':
+            net = TransformerModel(embedding_matrix=embedding_matrix).to(device)
     else:
         net = torch.load(model_path).to(device)
     criterion = nn.BCEWithLogitsLoss().to(device)
@@ -74,7 +77,7 @@ def trainer(model_path=None, model='TextCNNModel'):
     thread_save_best.join()
     # 验证一下最好的模型
     best_net_path = os.path.join(s_p, "weights", "best.pt")
-    best_net = torch.load(best_net_path)  # 读取最好的模型
+    best_net = torch.load(best_net_path, weights_only=False)  # 读取最好的模型
     logging.info(f"正在验证最好的模型, 模型路径为: " + best_net_path )
     best_acc = last_validator(best_net, val_dataloader, device, s_p)
     logging.info(f"✨验证集上最优准确率为: {best_acc:.8f}")
